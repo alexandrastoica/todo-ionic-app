@@ -1,0 +1,24 @@
+<ion-view view-title="Register" name="register-view">
+    <ion-content class="padding">
+        <form name="RegisterForm" novalidate ng-submit="register(RegisterForm)">
+            {{ message }}
+            <ion-list class="register-form">
+                <label class="item item-input">
+                    <input type="email" name="email" ng-model="email" ng-required="true" placeholder="Email">
+                </label>
+                <p class="error" ng-show="RegisterForm.email.$invalid && RegisterForm.email.$touched">Must be a valid email.</p>
+                <label class="item item-input">
+                    <input type="text" name="name" ng-model="name" ng-required="true" placeholder="Name">
+                </label>
+                <p class="error" ng-show="RegisterForm.name.$invalid && RegisterForm.name.$touched">Must be completed.</p>
+                <label class="item item-input">
+                    <input type="password" name="password" ng-model="password" 
+                    ng-minlength="6" ng-maxlength="20" ng-required="true" placeholder="Password">
+                </label>
+                 <p class="error" ng-show="RegisterForm.password.$invalid && RegisterForm.password.$touched">Must be between 6 and 20.</p>
+                <button class="button button-block button-positive" ng-disabled="RegisterForm.$invalid">Register</button>
+                <p>Already registered? <a href="#/">Login here</a></p>
+            </ion-list>
+        </form>
+    </ion-content>
+</ion-view>
