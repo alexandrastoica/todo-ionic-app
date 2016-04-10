@@ -37,15 +37,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             templateUrl: "templates/register.html",
             controller: "RegisterCtrl"
         })
-        .state('success', {
-            url: "/success",
-            templateUrl: "templates/success.html",
+        .state('add-list', {
+            url: "/add-list",
+            templateUrl: "templates/add-list.html",
+            controller: "AddListCtrl",
             resolve: {
                 currentAuth: function(Auth) {
                     return Auth.requireAuth();
                 }
-            }, // resolve - this will prevent unlogged user from accessing the page
-            controller: "LoginCtrl"
+            } // resolve - this will prevent unlogged user from accessing the page
         });
         /*.state('tabs', {
             url: "/tab",

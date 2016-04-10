@@ -15,14 +15,15 @@ angular.module('starter.services', [])
         	} else {
         		$rootScope.currentUser = '';
         	}
-        });
+        }); // this determines whether the user is or not logged in and which user it is
+        
         var returnObj = {
             login: function(user) {
                 auth.$authWithPassword({
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
-                    $location.path('/success');
+                    $location.path('/add-list');
                 }).catch(function(error) {
                     $rootScope.message = error.message;
                 });
