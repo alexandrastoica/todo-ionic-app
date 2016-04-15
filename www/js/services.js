@@ -19,22 +19,23 @@ angular.module('starter.services', [])
         
         var returnObj = {
             login: function(user) {
+                console.log(user);
                 auth.$authWithPassword({
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
-                    $location.path('/add-list');
+                    $location.path('/tabs/addlist');
                 }).catch(function(error) {
                     $rootScope.message = error.message;
                 });
             }, //login
-            logout: function() {
-                $location.path('/');
-            	return auth.$unauth();
-            }, //logout
             requireAuth: function() {
                 return auth.$requireAuth();
             }, //require auth
+            logout: function() {
+                $location.path('/');
+                return auth.$unauth();
+            }, //logout
             register: function(user) {
                 auth.$createUser({
                     email: user.email,
@@ -55,5 +56,4 @@ angular.module('starter.services', [])
         }; // object
 
         return returnObj;
-    }
-]); //factory
+}]); //factory

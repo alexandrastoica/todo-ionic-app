@@ -1,0 +1,33 @@
+<ion-view view-title="addlist" name="addlist-view">
+    <div class="bar bar-header bar-positive">
+        <h1 class="title">Add a list</h1>
+    </div>
+    <ion-content class="padding has-header">
+        <p>Hello, {{ currentUser.name }}!</p>
+        <form name="AddList" novalidate ng-submit="addList(params)">
+            <ion-list>
+                <label class="item item-input">
+                    <input type="text" name="listname" ng-model="params.listname" ng-required="true" placeholder="Create a new to-do list">
+                </label>
+                <ion-toggle ng-model="share" toggle-class="toggle-balanced">Shared list</ion-toggle>
+
+                <label class="item item-input item-input-wrapper" ng-show="share">
+                    <i class="icon ion-search placeholder-icon"></i>
+                    <input type="search" name="share_email" ng-model="params.share_email" ng-required="share" placeholder="Enter an e-mail adresses">
+                </label>
+                <ion-item class="item item-icon-right" ng-show="share && params.share_email.length" ng-repeat="(key, user) in users | filter: {email: params.share_email}">
+                    {{ user.name }} | {{ user.email }}
+                    <i class="icon ion-person-add" ng-click="addPerson(user)"></i>
+                </ion-item>
+
+                <ion-item class="item item-divider" ng-show="share && addedUsers.length">Added Users</ion-item>
+                <ion-item class="item item-icon-right" ng-show="share && addedUsers.length" ng-repeat="(key, aUser) in addedUsers">
+                    {{ aUser }}
+                    <i class="icon ion-minus-circled" ng-click="removePerson(key)"></i>
+                </ion-item>
+
+            </ion-list>
+            <button class="button button-block button-positive" ng-disabled="AddList.$invalid">+</button>
+        </form>
+    </ion-content>
+</ion-view>

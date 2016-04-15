@@ -1,17 +1,17 @@
 <ion-view view-title="Login" name="login-view">
     <ion-content class="padding">
-        <form name="LoginForm" novalidate ng-submit="login(LoginForm)">
+        <form name="LoginForm" novalidate ng-submit="login(user)">
             {{ message }}
             <ion-list>
                 <label class="item item-input">
-                    <input type="email" name="email" ng-model="email" ng-required="true" placeholder="Email">
+                    <input type="email" name="email" ng-model="user.email" ng-required="true" placeholder="Email">
                 </label>
-                <p class="error" ng-show="LoginForm.email.$invalid && LoginForm.email.$touched">Must be a valid email.</p>
+                <p class="error" ng-show="LoginForm.user.email.$invalid && LoginForm.user.email.$touched">Must be a valid email.</p>
                 <label class="item item-input">
-                    <input type="password" name="password" ng-model="password" 
+                    <input type="password" name="password" ng-model="user.password" 
                     ng-minlength="6" ng-maxlength="20" ng-required="true" placeholder="Password">
                 </label>
-                <p class="error" ng-show="LoginForm.password.$invalid && LoginForm.password.$touched">Must be between 6 and 20 characters.</p>
+                <p class="error" ng-show="LoginForm.user.password.$invalid && LoginForm.user.password.$touched">Must be between 6 and 20 characters.</p>
                 <button class="button button-block button-positive" ng-disabled="LoginForm.$invalid">Login</button>
                 <p>Not registered? <a href="#/register">Register here</a></p>
             </ion-list>

@@ -1,21 +1,21 @@
 <ion-view view-title="Register" name="register-view">
     <ion-content class="padding">
-        <form name="RegisterForm" novalidate ng-submit="register(RegisterForm)">
+        <form name="RegisterForm" novalidate ng-submit="register(user)">
             {{ message }}
             <ion-list class="register-form">
                 <label class="item item-input">
-                    <input type="email" name="email" ng-model="email" ng-required="true" placeholder="Email">
+                    <input type="email" name="email" ng-model="user.email" ng-required="true" placeholder="Email">
                 </label>
-                <p class="error" ng-show="RegisterForm.email.$invalid && RegisterForm.email.$touched">Must be a valid email.</p>
+                <p class="error" ng-show="RegisterForm.user.email.$invalid && RegisterForm.user.email.$touched">Must be a valid email.</p>
                 <label class="item item-input">
-                    <input type="text" name="name" ng-model="name" ng-required="true" placeholder="Name">
+                    <input type="text" name="name" ng-model="user.name" ng-required="true" placeholder="Name">
                 </label>
-                <p class="error" ng-show="RegisterForm.name.$invalid && RegisterForm.name.$touched">Must be completed.</p>
+                <p class="error" ng-show="RegisterForm.user.name.$invalid && RegisterForm.user.name.$touched">Must be completed.</p>
                 <label class="item item-input">
-                    <input type="password" name="password" ng-model="password" 
+                    <input type="password" name="password" ng-model="user.password" 
                     ng-minlength="6" ng-maxlength="20" ng-required="true" placeholder="Password">
                 </label>
-                 <p class="error" ng-show="RegisterForm.password.$invalid && RegisterForm.password.$touched">Must be between 6 and 20.</p>
+                 <p class="error" ng-show="RegisterForm.user.password.$invalid && RegisterForm.user.password.$touched">Must be between 6 and 20.</p>
                 <button class="button button-block button-positive" ng-disabled="RegisterForm.$invalid">Register</button>
                 <p>Already registered? <a href="#/">Login here</a></p>
             </ion-list>

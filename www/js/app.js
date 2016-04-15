@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $rootScope, $state) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -20,6 +20,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             // org.apache.cordova.statusbar required
             StatusBar.styleDefault();
         }
+
+        //fallback in case unlogged user accesses the wrong page
+        $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
+                if(error === 'AUTH_REQUIRED'){
+                    $state.go('login');
+                }
+        });
     });
 })
 
@@ -29,65 +36,81 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     $stateProvider
         .state('login', {
             url: "/",
+            cache: false,
             templateUrl: "templates/login.html",
             controller: "LoginCtrl"
         })
         .state('register', {
             url: "/register",
+            cache: false,
             templateUrl: "templates/register.html",
             controller: "RegisterCtrl"
         })
-        .state('add-list', {
-            url: "/add-list",
-            templateUrl: "templates/add-list.html",
-            controller: "AddListCtrl",
+        .state('tabs', {
+            url: "/tabs",
+            cache: false,
+            abstract: true,
+            templateUrl: "templates/tabs.html"
+        })
+        .state('tabs.addlist', {
+            url: "/addlist",
+            cache: false,
+            views: {
+                "addlist-tab": {
+                    templateUrl: "templates/addlist.html",
+                    controller: "AddListCtrl"
+                }
+            },
+            resolve: {
+                currentAuth: function(Auth) {
+                    return Auth.requireAuth();
+                }
+            } // resolve - this will prevent unlogged user from accessing the page
+        }).state('tabs.lists', {
+            url: "/lists",
+            cache: false,
+            views: {
+                "lists-tab": {
+                    templateUrl: "templates/lists.html",
+                    controller: "AddListCtrl"
+                }
+            },
+            resolve: {
+                currentAuth: function(Auth) {
+                    console.log(Auth.requireAuth());
+                    return Auth.requireAuth();
+                }
+            } // resolve - this will prevent unlogged user from accessing the page
+        }).state('lists.detail', {
+            url: "/lists/:lId",
+            cache: false,
+            views: {
+                "lists-tab": {
+                    templateUrl: "templates/lists.details.html",
+                    controller: "AddListCtrl"
+                }
+            },
+            resolve: {
+                currentAuth: function(Auth) {
+                    console.log(Auth.requireAuth());
+                    return Auth.requireAuth();
+                }
+            } // resolve - this will prevent unlogged user from accessing the page
+        }).state('tabs.profile', {
+            url: "/profile",
+            cache: false,
+            views: {
+                "profile-tab": {
+                    templateUrl: "templates/profile.html",
+                    controller: "AddListCtrl"
+                }
+            },
             resolve: {
                 currentAuth: function(Auth) {
                     return Auth.requireAuth();
                 }
             } // resolve - this will prevent unlogged user from accessing the page
         });
-        /*.state('tabs', {
-            url: "/tab",
-            //abstract: true,
-            templateUrl: "templates/tabs.html"
-        })
-        .state("tabs.home", {
-            url: '/home',
-            views: {
-                "home-tab": {
-                    templateUrl: 'templates/home.html',
-                    controller: 'HomeController'
-                }
-            }
-        })
-        .state("tabs.movie", {
-            url: '/movie',
-            views: {
-                "movie-tab": {
-                    templateUrl: 'templates/movie.html',
-                    controller: 'MovieController'
-                }
-            }
-        })
-        .state("tabs.movie-detail", {
-            url: '/movie/:id',
-            views: {
-                "movie-tab": {
-                    templateUrl: 'templates/movie.html',
-                    controller: 'SearchController'
-                }
-            }
-        })
-        .state("tabs.profile", {
-            url: '/profile',
-            views: {
-                "profile-tab": {
-                    templateUrl: 'templates/search.html',
-                    controller: 'ProfileController'
-                }
-            }
-        })*/
 
         $urlRouterProvider.otherwise("/");
 });

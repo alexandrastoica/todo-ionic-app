@@ -1,0 +1,22 @@
+<ion-view view-title="lists.detail" name="detail-view">
+    <div class="bar bar-header bar-positive">
+        <h1 class="title">{{ list.name }}</h1>
+    </div>
+    <ion-content class="padding has-header">
+        <p>Hello, {{ currentUser.name }}!</p>
+        <h4>Your lists</h4>
+        <ion-list>
+            <ion-item class="item item-icon-right">
+            	{{ list.name }} | {{ list.listId }}
+                <a href="#/tabs/lists/{{list.listId}}">edit</a>
+                <ion-reorder-button class="icon ion-navicon" on-reorder="moveList(list, $fromIndex, $toIndex)">
+                </ion-reorder-button>
+                <ion-option-button class="button-positive">
+                    <i class="icon ion-ios-edit"></i>
+                </ion-option-button>
+                <ion-delete-button class="ion-minus-circled" ng-click="deleteList(key)"></ion-delete-button>
+            </ion-item>
+        </ion-list>
+        <button class="button" ng-click="showDeleteButtons()">Delete</button>
+    </ion-content>
+</ion-view>

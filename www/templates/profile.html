@@ -1,0 +1,11 @@
+<ion-view view-title="profile-tab" name="profile-view">
+    <div class="bar bar-header bar-positive">
+        <h1 class="title">Profile</h1>
+    </div>
+    <ion-content class="padding has-header">
+        <p> Hello, {{ currentUser.name }}!<p>
+        <p> Your email is: {{ currentUser.email }} </p>
+
+        <button class="button" ng-click="logout()">Logout</button>
+    </ion-content>
+</ion-view>
