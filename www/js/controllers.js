@@ -35,116 +35,55 @@ angular.module('starter.controllers', [])
 
 }]) //controller
 
-.controller("AddListCtrl", ['$scope', '$rootScope', '$state', '$stateParams','$firebaseAuth', '$firebaseArray', 'FIREBASE_URL', '$ionicListDelegate', 'Auth',
-    function($scope, $rootScope, $state, $stateParams, $firebaseAuth, $firebaseArray, FIREBASE_URL, $ionicListDelegate, Auth) {
+.controller("AddListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists',
+    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
 
-        console.log("currentUser:  " + $rootScope.currentUser.$id);
-
-        $scope.showDeleteButtons = function() {
-            $ionicListDelegate.showDelete(true);
-        };
-
-        $scope.logout = function(){
-            Auth.logout();
-        }
-
         auth.$onAuth(function(authUser) {
             if (authUser) {
+
+                $scope.logout = function(){
+                    Auth.logout();
+                    $rootScope.lists = [];
+                    $rootScope.ownLists = [];
+                    $rootScope.sharedLists = [];
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    $scope.whichList = '';
+                };
 
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
                 var listInfo = $firebaseArray(listRef);
 
-                $scope.list = [];
+                Lists.getLists();
 
-                listRef.once("value", function(allListSnapshot){
-                    allListSnapshot.forEach(function(listSnapshot){
-                        var key = listSnapshot.key();
-                        var by = listSnapshot.child("by").val();
-                        var shared = listSnapshot.child("shared").val();
-                        var data = listSnapshot.val();
-                        //console.log(data.members.userId);
-
-                        //See if the current user has created the list
-                        if($rootScope.currentUser.$id == by){
-                            $scope.list.push(data);
-                        } else if(shared == 1){ // if not, see if the list is shared to the current user
-                            //console.log(key + " list by " + by + " with members ");
-                            //console.log(data.members);
-
-                            angular.forEach(data.members, function(member, key){
-                                if($rootScope.currentUser.$id == member){
-                                        $scope.list.push(data);
-                                    } // if
-                            }); // forEach member
-
-                        } // else if
-
-                    }); // allListSnapshot
-                    console.log($scope.list);
-                }); //listRef
+                $scope.data = function(){
+                   showDelete = false;
+                   showReorder = false;
+                }
 
                 $scope.moveList = function(list, fromIndex, toIndex) {
                     //Move the item in the array
-                    $scope.list.splice(fromIndex, 1);
-                    $scope.list.splice(toIndex, 0, list);
+                    $rootScope.lists.splice(fromIndex, 1);
+                    $rootScope.lists.splice(toIndex, 0, list);
                 };
-
-
-                $scope.addList = function(params) {
-                    //console.log(params.listname);
-                    
-
-                    var listId = listRef.push();
-                    listId.set({
-                        listId: listId.key(),
-                        name: params.listname,
-                        done: 0,
-                        date: Firebase.ServerValue.TIMESTAMP,
-                        by: $rootScope.currentUser.$id,
-                        shared: 0
-                    }); //add
-
-                    params.listname = '';
-
-                    var membersRef = listId.toString(); // get the path to store members if applicable
-                    var members = new Firebase(membersRef + "/members/");
-                    //alert(members);
-
-                    if($scope.addedUsersId.length > 0) {
-
-                        listId.update({
-                            shared: 1
-                        });
-
-                        angular.forEach($scope.addedUsersId, function(id, key){
-                            members.set({
-                                userId: id
-                            }); //add
-                        });
-
-                        $scope.addedUsers = [];
-                    
-                    } // if added users
-
-                    $state.go('tabs.lists');
-
-                }; // add list
-
 
                 $scope.deleteList = function(key) {
                     listInfo.$remove(key);
+                    $rootScope.lists.splice(key, 1);
                 }; //remove the list
+
+
+                $scope.addList = function(params){
+                    Lists.addLists(params, $scope.addedUsersId);
+                }
 
                 var userRef = new Firebase(FIREBASE_URL + 'users/');
                 var userInfo = $firebaseArray(userRef);
 
                 $scope.users = userInfo;
-
-                //var item = userRef.$getRecord('test@test1.com');
-                //alert(item);
 
                 $scope.addedUsers = [];
                 $scope.addedUsersId = [];
@@ -160,10 +99,38 @@ angular.module('starter.controllers', [])
                 }; //remove user from the list
 
 
+                //get user by id
+                $scope.whichList = $state.params.lId;
+                $scope.shares = [];
+                if($scope.whichList != undefined){
+                    listRef.child($scope.whichList + '/by').once('value', function(snap) {
+                        authorId = snap.val();
+                        userRef.child(authorId).child('/name').once('value', function(snap){
+                            $scope.author = snap.val();
+                        });
+                    });
+                    listRef.child($scope.whichList).child('/shared').once('value', function(snap) {
+                        //console.log(snap.val());
+                        if(snap.val() == 1){
+                            listRef.child($scope.whichList + '/members').once('value', function(snap){
+                                var data = snap.val();
+                                userRef.child(data.userId).child('/name').once('value', function(snap){
+                                    //console.log(snap.val());
+                                        $scope.shares.push(snap.val());
+                                });
+                            });
+                        } else {
+                            $scope.shares = [];
+                        }
+                    });
+
+
+
+                } else {
+                    $scope.author = '';
+                }
+
             } // if user authenticated
-
-
-            $stateParams.lId;
 
         }); // onAuth
 

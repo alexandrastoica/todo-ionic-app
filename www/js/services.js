@@ -1,8 +1,7 @@
 angular.module('starter.services', [])
 
-.factory('Auth', ['$rootScope', '$firebaseAuth', '$firebaseObject', 'FIREBASE_URL', '$location',
-
-    function($rootScope, $firebaseAuth, $firebaseObject, FIREBASE_URL, $location) {
+.factory('Auth', ['$rootScope', '$firebaseAuth', '$firebaseObject', 'FIREBASE_URL', '$state',
+    function($rootScope, $firebaseAuth, $firebaseObject, FIREBASE_URL, $state) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
@@ -24,7 +23,7 @@ angular.module('starter.services', [])
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
-                    $location.path('/tabs/addlist');
+                    $state.go('tabs.addlist');
                 }).catch(function(error) {
                     $rootScope.message = error.message;
                 });
@@ -33,7 +32,7 @@ angular.module('starter.services', [])
                 return auth.$requireAuth();
             }, //require auth
             logout: function() {
-                $location.path('/');
+                $state.go('login');
                 return auth.$unauth();
             }, //logout
             register: function(user) {
@@ -48,7 +47,7 @@ angular.module('starter.services', [])
                             name: user.name,
                             email: user.email
                         }); //user info
-                    $location.path('/');
+                    $state.go('login');
                 }).catch(function(error) {
                     $rootScope.message = error.message;
                 }); // createUser
@@ -56,4 +55,81 @@ angular.module('starter.services', [])
         }; // object
 
         return returnObj;
-}]); //factory
+}]) //factory
+
+.factory('Lists', ['$rootScope', '$firebaseArray', 'FIREBASE_URL', '$state', '$location',
+    function($rootScope, $firebaseArray, FIREBASE_URL, $state, $location) {
+
+        var listObj = {
+            getLists: function() {
+
+                var listRef = new Firebase(FIREBASE_URL + 'lists/');
+                var userRef = new Firebase(FIREBASE_URL + 'users/');
+
+                $rootScope.lists = [];
+                $rootScope.ownLists = [];
+                $rootScope.sharedLists = [];
+
+                var userListRef = userRef.child($rootScope.currentUser.$id).child('/lists');
+
+                userListRef.on('child_added', function(snap){
+                    listRef.child(snap.key()).once('value', function(data){
+                        $rootScope.lists.push(data.val());  
+                        //console.log(data.val());
+                    });
+                });
+            },
+            addLists: function(params, addedUsersId){
+                var ref = new Firebase(FIREBASE_URL);
+                var listId = ref.child('/lists').push();  //create a new list id
+                    listId.set({
+                        listId: listId.key(),
+                        name: params.listname,
+                        done: 0,
+                        date: Firebase.ServerValue.TIMESTAMP,
+                        by: $rootScope.currentUser.$id,
+                        shared: 0
+                    }, function(err){
+                        if(!err){
+                            var name = listId.key();
+                            ref.child('/users/' + $rootScope.currentUser.$id + "/lists/" + name).set(true);
+                            ref.child('/users/' + $rootScope.currentUser.$id + "/own-lists/" + name).set(true);
+                         }
+                    });
+
+                    if(addedUsersId.length > 0) {
+                        var membersRef = listId.toString(); // get the path to store members if applicable
+                        var members = new Firebase(membersRef + '/members');
+                        listId.update({
+                            shared: 1
+                        });
+                        angular.forEach(addedUsersId, function(id, key){
+                            members.set({
+                                userId: id
+                            }); //add
+                            var name = listId.key();
+                            ref.child('/users/' + id + "/lists/" + name).set(true);
+                            ref.child('/users/' + id + "/shared-lists/" + name).set(true); // add the list to each member for reference
+                        });
+                        addedUsers = [];
+                    } // if added users
+                    $state.go('tabs.lists');
+            }
+
+        }
+        return listObj;
+
+}]) //factory
+
+.factory("GetUser", ["$firebaseObject", "FIREBASE_URL",
+  function($firebaseObject, FIREBASE_URL) {
+    return function(value, listId) {
+
+      var ref = new Firebase(FIREBASE_URL + "lists/" + listId);
+      var Ref = ref.child(value);
+
+      // return it as a synchronized object
+      return $firebaseObject(Ref);
+    }
+  }
+]);

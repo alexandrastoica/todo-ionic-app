@@ -25,6 +25,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
                 if(error === 'AUTH_REQUIRED'){
                     $state.go('login');
+                    console.log(error);
                 }
         });
     });
@@ -81,12 +82,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     return Auth.requireAuth();
                 }
             } // resolve - this will prevent unlogged user from accessing the page
-        }).state('lists.detail', {
+        }).state('tabs.detail', {
             url: "/lists/:lId",
             cache: false,
             views: {
                 "lists-tab": {
-                    templateUrl: "templates/lists.details.html",
+                    templateUrl: "templates/lists-details.html",
                     controller: "AddListCtrl"
                 }
             },
