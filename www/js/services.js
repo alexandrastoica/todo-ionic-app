@@ -18,7 +18,7 @@ angular.module('starter.services', [])
         
         var returnObj = {
             login: function(user) {
-                console.log(user);
+                //console.log(user);
                 auth.$authWithPassword({
                     email: user.email,
                     password: user.password
@@ -57,65 +57,80 @@ angular.module('starter.services', [])
         return returnObj;
 }]) //factory
 
-.factory('Lists', ['$rootScope', '$firebaseArray', 'FIREBASE_URL', '$state', '$location',
-    function($rootScope, $firebaseArray, FIREBASE_URL, $state, $location) {
+.factory('Lists', ['$rootScope', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$state', '$location',
+    function($rootScope, $firebaseArray, $firebaseObject, FIREBASE_URL, $state, $location) {
 
         var listObj = {
             getLists: function() {
-
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
-                var userRef = new Firebase(FIREBASE_URL + 'users/');
+                var userListRef = new Firebase(FIREBASE_URL + 'users/' + $rootScope.currentUser.$id + '/lists/');
 
-                $rootScope.lists = [];
-                $rootScope.ownLists = [];
-                $rootScope.sharedLists = [];
+                userListRef.on("child_added", function(snap){
+                    listRef.child(snap.key()).once("value", function(data){
+                        $rootScope.lists.push(data.val());
+                    });
+                });
+            },
+            getTasks: function(listid){
+                var ref = new Firebase(FIREBASE_URL + '/lists/' + listid + "/tasks");
 
-                var userListRef = userRef.child($rootScope.currentUser.$id).child('/lists');
-
-                userListRef.on('child_added', function(snap){
-                    listRef.child(snap.key()).once('value', function(data){
-                        $rootScope.lists.push(data.val());  
-                        //console.log(data.val());
+                ref.once("value", function(snap){
+                    var data = snap.val();
+                    angular.forEach(data, function(value, key) {
+                        var infoTask = ref.child(key);
+                        var obj = $firebaseObject(infoTask);
+                        $rootScope.tasks.push(obj);
                     });
                 });
             },
             addLists: function(params, addedUsersId){
                 var ref = new Firebase(FIREBASE_URL);
                 var listId = ref.child('/lists').push();  //create a new list id
-                    listId.set({
-                        listId: listId.key(),
-                        name: params.listname,
-                        done: 0,
-                        date: Firebase.ServerValue.TIMESTAMP,
-                        by: $rootScope.currentUser.$id,
-                        shared: 0
-                    }, function(err){
-                        if(!err){
-                            var name = listId.key();
-                            ref.child('/users/' + $rootScope.currentUser.$id + "/lists/" + name).set(true);
-                            ref.child('/users/' + $rootScope.currentUser.$id + "/own-lists/" + name).set(true);
-                         }
+
+                listId.set({
+                    listId: listId.key(),
+                    name: params.listname,
+                    done: 0,
+                    date: Firebase.ServerValue.TIMESTAMP,
+                    by: $rootScope.currentUser.$id,
+                    shared: 0
+                }, function(err){
+                    if(!err){
+                        var name = listId.key();
+                        ref.child('/users/' + $rootScope.currentUser.$id + "/lists/" + name).set(true);
+                        ref.child('/lists/' + name + '/members/' + $rootScope.currentUser.$id).set(true);
+                     }
+                });
+
+                var membersRef = listId.toString(); // get the path to store members if applicable
+                var members = new Firebase(membersRef + '/members');
+                
+                // if added users
+                if(addedUsersId.length > 0) {
+                    listId.update({
+                        shared: 1
                     });
-
-                    if(addedUsersId.length > 0) {
-                        var membersRef = listId.toString(); // get the path to store members if applicable
-                        var members = new Firebase(membersRef + '/members');
-                        listId.update({
-                            shared: 1
-                        });
-                        angular.forEach(addedUsersId, function(id, key){
-                            members.set({
-                                userId: id
-                            }); //add
-                            var name = listId.key();
-                            ref.child('/users/' + id + "/lists/" + name).set(true);
-                            ref.child('/users/' + id + "/shared-lists/" + name).set(true); // add the list to each member for reference
-                        });
-                        addedUsers = [];
-                    } // if added users
-                    $state.go('tabs.lists');
+                    angular.forEach(addedUsersId, function(id, key){
+                        members.set({
+                            id: true
+                        }); //add
+                        var name = listId.key();
+                        ref.child('/users/' + id + "/lists/" + name).set(true);
+                    });
+                    addedUsers = [];
+                }
+            },
+            addTask: function(listid, name){
+                var ref = new Firebase(FIREBASE_URL);
+                var taskId = ref.child('/lists/'+ listid +'/tasks/').push();  //create a new list id
+                taskId.set({
+                    taskId: taskId.key(),
+                    name: name,
+                    done: 0,
+                    date: Firebase.ServerValue.TIMESTAMP,
+                    by: $rootScope.currentUser.$id
+                });
             }
-
         }
         return listObj;
 

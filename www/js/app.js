@@ -37,25 +37,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     $stateProvider
         .state('login', {
             url: "/",
-            cache: false,
+           // cache: false,
             templateUrl: "templates/login.html",
             controller: "LoginCtrl"
         })
         .state('register', {
             url: "/register",
-            cache: false,
+            //cache: false,
             templateUrl: "templates/register.html",
             controller: "RegisterCtrl"
         })
         .state('tabs', {
             url: "/tabs",
-            cache: false,
+            //cache: false,
             abstract: true,
             templateUrl: "templates/tabs.html"
         })
         .state('tabs.addlist', {
             url: "/addlist",
-            cache: false,
+            //cache: false,
             views: {
                 "addlist-tab": {
                     templateUrl: "templates/addlist.html",
@@ -69,41 +69,67 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.lists', {
             url: "/lists",
-            cache: false,
+            //cache: false,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists.html",
-                    controller: "AddListCtrl"
+                    controller: "ListCtrl"
                 }
             },
             resolve: {
                 currentAuth: function(Auth) {
-                    console.log(Auth.requireAuth());
+                    return Auth.requireAuth();
+                }
+            } // resolve - this will prevent unlogged user from accessing the page
+        }).state('tabs.shared', {
+            url: "/shared",
+           // cache: false,
+            views: {
+                "shared-tab": {
+                    templateUrl: "templates/shared.html",
+                    controller: "ListCtrl"
+                }
+            },
+            resolve: {
+                currentAuth: function(Auth) {
                     return Auth.requireAuth();
                 }
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.detail', {
             url: "/lists/:lId",
-            cache: false,
+            //cache: false,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists-details.html",
-                    controller: "AddListCtrl"
+                    controller: "ListCtrl"
                 }
             },
             resolve: {
                 currentAuth: function(Auth) {
-                    console.log(Auth.requireAuth());
+                    return Auth.requireAuth();
+                }
+            } // resolve - this will prevent unlogged user from accessing the page
+        }).state('tabs.shared-detail', {
+            url: "/shared/:lId",
+            //cache: false,
+            views: {
+                "shared-tab": {
+                    templateUrl: "templates/shared-details.html",
+                    controller: "List"
+                }
+            },
+            resolve: {
+                currentAuth: function(Auth) {
                     return Auth.requireAuth();
                 }
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.profile', {
             url: "/profile",
-            cache: false,
+            //cache: false,
             views: {
                 "profile-tab": {
                     templateUrl: "templates/profile.html",
-                    controller: "AddListCtrl"
+                    controller: "Profile"
                 }
             },
             resolve: {

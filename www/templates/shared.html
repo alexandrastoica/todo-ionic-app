@@ -1,0 +1,22 @@
+<ion-view view-title="Shared Lists" name="shared-view">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-icon ion-navicon" 
+        ng-click="data.showReorder = !data.showReorder"></button>
+    </ion-nav-buttons>
+        <div class="bar bar-subheader bar-light item-input-inset">
+            <label class="item-input-wrapper">
+                <i class="icon ion-search placeholder-icon"></i>
+                <input type="search" name="searchList" ng-model="searchList" placeholder="Search">
+            </label>
+        </div>
+    <ion-content class="padding has-header has-subheader">
+        <ion-list show-reorder="data.showReorder">    
+            <p ng-if="lists.length == 0">No lists.</p>
+            <ion-item class="item item-icon-right item-text-wrapper" ng-repeat="(key, list) in lists | filter: {name: searchList} | filter: {shared: 1}">  
+                <ion-reorder-button class="icon ion-navicon" on-reorder="moveList(list, $fromIndex, $toIndex)"></ion-reorder-button>
+                {{ list.name }}
+                <a class="button button-icon icon ion-ios-arrow-right" ui-sref="tabs.shared-detail({lId: list.listId})"></a>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>
