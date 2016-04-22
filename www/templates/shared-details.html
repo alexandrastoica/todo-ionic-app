@@ -1,4 +1,4 @@
-<ion-view view-title="View More" name="shared-view">
+<ion-view view-title="Shared Lists" name="shared-view">
     <div class="bar bar-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
       <h2 class="title">{{ list.name }}</h2>
     </div>
@@ -8,10 +8,18 @@
         <p ng-repeat="shared in shares" ng-show="shares.length">{{ shared }}</p>
         <ion-list>
             <ion-item class="item item-divider">Tasks</ion-item>
-            <ion-item class="item" ng-show="">No lists yet.</ion-item>
-            <ion-item class="item item-icon-right">
-                Add
+            <ion-checkbox ng-repeat="(key, task) in tasks | filter: {done: 0}" ng-click="completeTask(task.$id)">
+                {{ task.name }}
+            </ion-checkbox>
+        </ion-list>
+
+        <ion-list>
+            <ion-item class="item item-divider">Completed Tasks</ion-item>
+            <ion-item ng-repeat="(key, task) in tasks | filter: {done: 1}">
+                {{ task.name }}
             </ion-item>
         </ion-list>
+        <button class="button button-block button-positive" ng-click="addTask()">Add Task</button>
+        <button ng-if="list.by == currentUser.$id" class="button button-block button-assertive" ng-click="deleteSharedList(key, list.listId)">Delete List</button>
     </ion-content>
 </ion-view>

@@ -62,24 +62,25 @@ angular.module('starter.services', [])
 
         var listObj = {
             getLists: function() {
+
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
                 var userListRef = new Firebase(FIREBASE_URL + 'users/' + $rootScope.currentUser.$id + '/lists/');
 
-                userListRef.on("child_added", function(snap){
-                    listRef.child(snap.key()).once("value", function(data){
-                        $rootScope.lists.push(data.val());
-                    });
+                userListRef.on("child_added", function(snap, prevSnap){
+                    $rootScope.lists.push($firebaseObject(listRef.child(snap.key())));
                 });
             },
             getTasks: function(listid){
                 var ref = new Firebase(FIREBASE_URL + '/lists/' + listid + "/tasks");
 
+                $rootScope.tasks = [];
                 ref.once("value", function(snap){
                     var data = snap.val();
                     angular.forEach(data, function(value, key) {
                         var infoTask = ref.child(key);
                         var obj = $firebaseObject(infoTask);
                         $rootScope.tasks.push(obj);
+                        //console.log(obj);
                     });
                 });
             },
@@ -90,7 +91,6 @@ angular.module('starter.services', [])
                 listId.set({
                     listId: listId.key(),
                     name: params.listname,
-                    done: 0,
                     date: Firebase.ServerValue.TIMESTAMP,
                     by: $rootScope.currentUser.$id,
                     shared: 0
@@ -111,16 +111,18 @@ angular.module('starter.services', [])
                         shared: 1
                     });
                     angular.forEach(addedUsersId, function(id, key){
-                        members.set({
-                            id: true
-                        }); //add
+                        members.child(id).set(true);
                         var name = listId.key();
                         ref.child('/users/' + id + "/lists/" + name).set(true);
                     });
                     addedUsers = [];
+                    $state.go("tabs.shared");
+                } else {
+                    $state.go("tabs.lists");
                 }
             },
             addTask: function(listid, name){
+                console.log(listid + " " + name);
                 var ref = new Firebase(FIREBASE_URL);
                 var taskId = ref.child('/lists/'+ listid +'/tasks/').push();  //create a new list id
                 taskId.set({

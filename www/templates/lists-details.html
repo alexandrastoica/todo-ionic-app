@@ -1,11 +1,9 @@
-<ion-view view-title="View More" name="lists-view">
+<ion-view view-title="Your Lists" name="lists-view">
     <div class="bar bar-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
       <h2 class="title">{{ list.name }}</h2>
     </div>
     <ion-content class="padding has-header has-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
         <h5>Owner: {{ author }}</h5>
-        <p ng-show="shares.length">Shared with:</p>
-        <p ng-repeat="shared in shares" ng-show="shares.length">{{ shared }}</p>
         <ion-list>
             <ion-item class="item item-divider">Tasks</ion-item>
             <ion-checkbox ng-repeat="(key, task) in tasks | filter: {done: 0}" ng-click="completeTask(task.$id)">

@@ -9719,10 +9719,3 @@ a.button {
   opacity: 0;
   -webkit-transition-duration: 0s;
   transition-duration: 0s; }
-
-input.ng-invalid.ng-touched {
-  border-sizing: border-box;
-  border: 1px solid #ef473a; }
-
-input.ng-valid.ng-touched {
-  border: 1px solid #33cd5f; }

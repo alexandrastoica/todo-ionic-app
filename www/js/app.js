@@ -115,7 +115,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             views: {
                 "shared-tab": {
                     templateUrl: "templates/shared-details.html",
-                    controller: "List"
+                    controller: "ListCtrl"
                 }
             },
             resolve: {

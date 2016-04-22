@@ -102,10 +102,12 @@ angular.module('starter.controllers', [])
             if (authUser) {
 
                 $scope.whichList = $state.params.lId;
-                $rootScope.tasks = [];
-                $rootScope.lists = [];
                 
-                Lists.getLists();
+                if(!$rootScope.lists){
+                    $rootScope.lists = [];
+                    Lists.getLists();
+                } 
+                
 
                 $scope.moveList = function(list, fromIndex, toIndex) {
                     //Move the item in the array
@@ -124,8 +126,28 @@ angular.module('starter.controllers', [])
                     var record = $firebaseObject(refDel);
                     record.$remove(id);
 
-                    $rootScope.lists.splice(key, 1);
                     $ionicListDelegate.showDelete(false);
+                }; //remove the list
+
+
+                $scope.deleteSharedList = function(key, id) {
+
+                    //delete from users object
+                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + id + "/members");
+                    refDel.once("value", function(snap){
+                        snap.forEach(function(data) {
+                            var userRef = new Firebase(FIREBASE_URL + "/users/" + data.key() + "/lists/" + id);
+                            var record = $firebaseObject(userRef);
+                            record.$remove(id);
+                        });
+                    });
+                    //delete from the lists object
+                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
+                    var record = $firebaseObject(refDel);
+                    record.$remove(id);
+
+                    $state.go("tabs.shared");
+
                 }; //remove the list
 
                 var listRef = new Firebase(FIREBASE_URL + "lists/" + $scope.whichList);
@@ -144,7 +166,6 @@ angular.module('starter.controllers', [])
                         var userRef = new Firebase(FIREBASE_URL + 'users/' + key);
                         var userInfo = $firebaseObject(userRef);
                         userInfo.$loaded().then(function(){
-                            console.log(userInfo.email);
                             $scope.members.push(userInfo.email);
                         });
                     });
@@ -153,7 +174,6 @@ angular.module('starter.controllers', [])
                 $scope.addTask = function(){
                     
                     $scope.popup = {}
-                    // console.log("addTask");
                     var myPopup = $ionicPopup.show({
                         template: '<input type="text" ng-model="popup.taskname">',
                         title: 'Enter a task',
@@ -176,11 +196,12 @@ angular.module('starter.controllers', [])
                         ]
                     }).then(function(res) {
                         Lists.addTask($scope.whichList, res);
+                        Lists.getTasks($scope.whichList);
                     });
 
                 } //add task
 
-                if($scope.whichList != undefined){
+                if($scope.whichList){
                     Lists.getTasks($scope.whichList);
 
                     $scope.completeTask = function(id){
@@ -189,9 +210,7 @@ angular.module('starter.controllers', [])
                             done: 1
                         });
                     }
-                }
-
-
+                } //if list defined
             
             }//if auth
         }); //onAuth

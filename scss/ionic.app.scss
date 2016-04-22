@@ -20,12 +20,3 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
-
-input.ng-invalid.ng-touched {
-	border-sizing: border-box;
-	border: 1px solid $assertive;
-}
-
-input.ng-valid.ng-touched {
-	border: 1px solid $balanced;
-}
