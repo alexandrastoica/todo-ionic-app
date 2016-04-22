@@ -23,7 +23,7 @@ angular.module('starter.services', [])
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
-                    $state.go('tabs.addlist');
+                    $state.go('tabs.add');
                 }).catch(function(error) {
                     $rootScope.message = error.message;
                 });
@@ -138,15 +138,18 @@ angular.module('starter.services', [])
 
 }]) //factory
 
-.factory("GetUser", ["$firebaseObject", "FIREBASE_URL",
+.factory("User", ["$firebaseObject", "FIREBASE_URL",
   function($firebaseObject, FIREBASE_URL) {
-    return function(value, listId) {
 
-      var ref = new Firebase(FIREBASE_URL + "lists/" + listId);
-      var Ref = ref.child(value);
+    var userObj = {
 
-      // return it as a synchronized object
-      return $firebaseObject(Ref);
-    }
+        getUser: function(){
+            var userRef = new Firebase(FIREBASE_URL + "users/" + $rootScope.currentUser.$id);
+        }
+        
+
+    } 
+
+    return userObj;
   }
 ]);

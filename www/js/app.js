@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase'])
 
-.run(function($ionicPlatform, $rootScope, $state) {
+.run(function($ionicPlatform, $rootScope, $state, $ionicPopup) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -28,7 +28,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     console.log(error);
                 }
         });
-    });
+  
+
+        if(window.Connection) {
+            if(navigator.connection.type == Connection.NONE) {
+                $ionicPopup.confirm({
+                    title: "Internet Disconnected",
+                    content: "The internet is disconnected on your device."
+                })
+                .then(function(result) {
+                    if(!result) {
+                        ionic.Platform.exitApp();
+                    }
+                });
+            }
+        }
+  });
+
 })
 
 .constant('FIREBASE_URL', 'https://fiery-inferno-5206.firebaseIO.com/')
@@ -37,28 +53,24 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     $stateProvider
         .state('login', {
             url: "/",
-           // cache: false,
             templateUrl: "templates/login.html",
             controller: "LoginCtrl"
         })
         .state('register', {
             url: "/register",
-            //cache: false,
             templateUrl: "templates/register.html",
             controller: "RegisterCtrl"
         })
         .state('tabs', {
             url: "/tabs",
-            //cache: false,
             abstract: true,
             templateUrl: "templates/tabs.html"
         })
-        .state('tabs.addlist', {
-            url: "/addlist",
-            //cache: false,
+        .state('tabs.add', {
+            url: "/add",
             views: {
-                "addlist-tab": {
-                    templateUrl: "templates/addlist.html",
+                "add-tab": {
+                    templateUrl: "templates/add.html",
                     controller: "AddListCtrl"
                 }
             },
@@ -69,7 +81,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.lists', {
             url: "/lists",
-            //cache: false,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists.html",
@@ -83,7 +94,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.shared', {
             url: "/shared",
-           // cache: false,
             views: {
                 "shared-tab": {
                     templateUrl: "templates/shared.html",
@@ -97,7 +107,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.detail', {
             url: "/lists/:lId",
-            //cache: false,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists-details.html",
@@ -111,7 +120,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.shared-detail', {
             url: "/shared/:lId",
-            //cache: false,
             views: {
                 "shared-tab": {
                     templateUrl: "templates/shared-details.html",
@@ -129,7 +137,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             views: {
                 "profile-tab": {
                     templateUrl: "templates/profile.html",
-                    controller: "Profile"
+                    controller: "ProfileCtrl"
                 }
             },
             resolve: {

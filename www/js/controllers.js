@@ -44,16 +44,6 @@ angular.module('starter.controllers', [])
         auth.$onAuth(function(authUser) {
             if (authUser) {
 
-                $scope.logout = function(){
-                    Auth.logout();
-                    $rootScope.lists = [];
-                    $rootScope.ownLists = [];
-                    $rootScope.sharedLists = [];
-                    $scope.addedUsers = [];
-                    $scope.addedUsersId = [];
-                    $scope.whichList = '';
-                };
-
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
                 var listInfo = $firebaseArray(listRef);
 
@@ -79,6 +69,13 @@ angular.module('starter.controllers', [])
                 $scope.removePerson = function(key) {
                     $scope.addedUsers.splice(key, 1);
                 }; //remove user from the list
+
+
+                /*if(!$scope.share){
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    $scope.params.share-email = '';
+                }*/
 
             } // if user authenticated
 
@@ -172,10 +169,9 @@ angular.module('starter.controllers', [])
                 });
 
                 $scope.addTask = function(){
-                    
                     $scope.popup = {}
                     var myPopup = $ionicPopup.show({
-                        template: '<input type="text" ng-model="popup.taskname">',
+                        templateUrl: '../templates/popup.html',
                         title: 'Enter a task',
                         scope: $scope,
                         buttons: [
@@ -214,4 +210,20 @@ angular.module('starter.controllers', [])
             
             }//if auth
         }); //onAuth
+}])
+
+.controller("ProfileCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$timeout',
+    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $timeout) {
+
+
+                $scope.logout = function(){
+                    Auth.logout();
+                    $rootScope.lists = [];
+                    $rootScope.ownLists = [];
+                    $rootScope.sharedLists = [];
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    $scope.whichList = '';
+                };
+
 }]);
