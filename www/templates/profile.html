@@ -1,11 +1,15 @@
 <ion-view view-title="Profile" name="profile-view">
-    <div class="bar bar-header bar-positive">
-        <h1 class="title">Profile</h1>
-    </div>
     <ion-content class="padding has-header">
-        <p> Hello, {{ currentUser.name }}!<p>
-        <p> Your email is: {{ currentUser.email }} </p>
 
-        <button class="button" ng-click="logout()">Logout</button>
-    </ion-content>
+    	<ion-list>
+    		<ion-item class="item item-avatar"> 
+				<img src="./img/avatar.png">
+    			<h2>Hello, {{ currentUser.name }}! </h2>
+    			<p> Your email is: {{ currentUser.email }} </p>
+    		</ion-item>
+    	</ion-list>
+
+        <button class="button button-block button-assertive" ng-click="logout()">Logout</button>
+    
+	</ion-content>
 </ion-view>

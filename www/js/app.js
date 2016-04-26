@@ -81,6 +81,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.lists', {
             url: "/lists",
+            cache: true,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists.html",
@@ -94,6 +95,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.shared', {
             url: "/shared",
+            cache: true,
             views: {
                 "shared-tab": {
                     templateUrl: "templates/shared.html",

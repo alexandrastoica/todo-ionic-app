@@ -6,16 +6,18 @@
         <h5>Owner: {{ author }}</h5>
         <ion-list>
             <ion-item class="item item-divider">Tasks</ion-item>
-            <ion-checkbox ng-repeat="(key, task) in tasks | filter: {done: 0}" ng-click="completeTask(task.$id)">
+            <ion-checkbox ng-repeat="(key, task) in tasks | filter: {done: 0} as notDone" ng-click="completeTask(task.$id)">
                 {{ task.name }}
             </ion-checkbox>
+            <ion-item ng-show="notDone.length===0" class="assertive">No tasks</ion-item>
         </ion-list>
 
         <ion-list>
             <ion-item class="item item-divider">Completed Tasks</ion-item>
-            <ion-item ng-repeat="(key, task) in tasks | filter: {done: 1}">
+            <ion-item ng-repeat="(key, task) in tasks | filter: {done: 1} as done">
                 {{ task.name }}
             </ion-item>
+            <ion-item ng-show="done.length===0" class="assertive">Nothing completed</ion-item>
         </ion-list>
         <button class="button button-block button-positive" ng-click="addTask()">Add Task</button>
     </ion-content>

@@ -70,13 +70,6 @@ angular.module('starter.controllers', [])
                     $scope.addedUsers.splice(key, 1);
                 }; //remove user from the list
 
-
-                /*if(!$scope.share){
-                    $scope.addedUsers = [];
-                    $scope.addedUsersId = [];
-                    $scope.params.share-email = '';
-                }*/
-
             } // if user authenticated
 
         }); // onAuth
@@ -98,14 +91,14 @@ angular.module('starter.controllers', [])
         auth.$onAuth(function(authUser) {
             if (authUser) {
 
-                $scope.whichList = $state.params.lId;
-                
                 if(!$rootScope.lists){
                     $rootScope.lists = [];
                     Lists.getLists();
                 } 
-                
 
+                $scope.whichList = $state.params.lId;
+
+                
                 $scope.moveList = function(list, fromIndex, toIndex) {
                     //Move the item in the array
                     $rootScope.lists.splice(fromIndex, 1);
@@ -171,7 +164,7 @@ angular.module('starter.controllers', [])
                 $scope.addTask = function(){
                     $scope.popup = {}
                     var myPopup = $ionicPopup.show({
-                        templateUrl: '../templates/popup.html',
+                        template: '<ion-list> <label class="item item-input"> <input type="text" name="name" autofocus ng-model="popup.taskname" placeholder="Task"> </label> </ion-list>',
                         title: 'Enter a task',
                         scope: $scope,
                         buttons: [
@@ -212,18 +205,11 @@ angular.module('starter.controllers', [])
         }); //onAuth
 }])
 
-.controller("ProfileCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$timeout',
-    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $timeout) {
-
+.controller("ProfileCtrl", ['$scope', '$rootScope', 'Auth',
+    function($scope, $rootScope, Auth) {
 
                 $scope.logout = function(){
                     Auth.logout();
-                    $rootScope.lists = [];
-                    $rootScope.ownLists = [];
-                    $rootScope.sharedLists = [];
-                    $scope.addedUsers = [];
-                    $scope.addedUsersId = [];
-                    $scope.whichList = '';
                 };
 
 }]);
