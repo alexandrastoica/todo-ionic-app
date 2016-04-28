@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase', 'ngStorage'])
 
 .run(function($ionicPlatform, $rootScope, $state, $ionicPopup) {
     $ionicPlatform.ready(function() {
@@ -23,29 +23,20 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
         //fallback in case unlogged user accesses the wrong page
         $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
-                if(error === 'AUTH_REQUIRED'){
-                    $state.go('login');
-                    console.log(error);
-                }
-        });
-  
-
-        if(window.Connection) {
-            if(navigator.connection.type == Connection.NONE) {
-                $ionicPopup.confirm({
-                    title: "Internet Disconnected",
-                    content: "The internet is disconnected on your device."
-                })
-                .then(function(result) {
-                    if(!result) {
-                        ionic.Platform.exitApp();
-                    }
-                });
+            if(error === 'AUTH_REQUIRED'){
+                $state.go('login');
+                console.log(error);
             }
-        }
-  });
+        });
 
+    })
 })
+
+.config(['$localStorageProvider',
+    function ($localStorageProvider) {
+        $localStorageProvider.setKeyPrefix('todo');
+    }
+])
 
 .constant('FIREBASE_URL', 'https://fiery-inferno-5206.firebaseIO.com/')
 

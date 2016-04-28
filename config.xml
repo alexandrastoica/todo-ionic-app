@@ -8,6 +8,8 @@
       Alexandra Stoica
     </author>
   <content src="index.html"/>
+  <allow-intent href="*.firebaseio.com" />
+  <allow-intent href="auth.firebase.com" />
   <access origin="*"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
@@ -16,6 +18,7 @@
   <preference name="BackupWebStorage" value="none"/>
   <preference name="SplashScreen" value="screen"/>
   <preference name="SplashScreenDelay" value="3000"/>
+  <preference name="Orientation" value="portrait" />
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>

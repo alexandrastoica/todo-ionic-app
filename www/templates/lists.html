@@ -1,4 +1,4 @@
-<ion-view view-title="Your Lists" cache-view="true" name="lists-view">
+<ion-view view-title="Your Lists" can-swipe-back cache-view="true" name="lists-view">
     <ion-nav-buttons side="primary">
         <button class="button button-icon ion-minus-circled" 
         ng-click="data.showDelete = !data.showDelete; data.showReorder = false;"></button>
@@ -18,8 +18,8 @@
             <ion-item class="item item-icon-right item-text-wrapper" ng-repeat="(key, list) in lists | filter: {name: searchList} | filter: {shared: 0} as items">   
                 <ion-reorder-button class="icon ion-navicon" on-reorder="moveList(list, $fromIndex, $toIndex)"></ion-reorder-button>
                 <ion-delete-button class="ion-minus-circled" ng-click="deleteList(key, list.listId); data.showDelete = false;"></ion-delete-button>
-                {{ list.name }}
-                <a class="button button-icon icon ion-ios-arrow-right" ui-sref="tabs.detail({lId: list.listId})"></a>
+                    {{ list.name }}
+                    <a class="button button-icon icon ion-ios-arrow-right" ui-sref="tabs.detail({lId: list.listId})"></a>
             </ion-item>
             <h3 ng-if="items.length===0">No lists found.</h3>
         </ion-list>

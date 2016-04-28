@@ -6,7 +6,7 @@
                 <label class="item item-input">
                     <input type="text" name="listname" ng-model="params.listname" ng-required="true" placeholder="Create a new to-do list">
                 </label>
-                <ion-toggle ng-model="share" toggle-class="toggle-balanced">Shared list</ion-toggle>
+                <ion-toggle ng-model="share" ng-change="toggleChange()" toggle-class="toggle-balanced">Share list</ion-toggle>
 
                 <label class="item item-input item-input-wrapper" ng-show="share">
                     <i class="icon ion-search placeholder-icon"></i>

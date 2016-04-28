@@ -19,8 +19,8 @@
     "cordova-plugin-console",
     "cordova-plugin-whitelist",
     "cordova-plugin-splashscreen",
-    "cordova-plugin-network-information",
     "cordova-plugin-statusbar",
+    "cordova-plugin-network-information",
     "ionic-plugin-keyboard"
   ],
   "cordovaPlatforms": [

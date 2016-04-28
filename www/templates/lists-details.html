@@ -1,4 +1,4 @@
-<ion-view view-title="Your Lists" name="lists-view">
+<ion-view view-title="Your Lists" can-swipe-back name="lists-view">
     <div class="bar bar-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
       <h2 class="title">{{ list.name }}</h2>
     </div>

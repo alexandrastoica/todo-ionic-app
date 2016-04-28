@@ -1,19 +1,23 @@
 angular.module('starter.controllers', [])
 
 
-.controller("LoginCtrl", ['$scope', '$rootScope', 'Auth',
-    function($scope, $rootScope, Auth) {
+.controller("LoginCtrl", ['$scope', '$rootScope', 'Auth', '$localStorage',
+    function($scope, $rootScope, Auth, $localStorage) {
 
         $rootScope.message = '';
 
-        //console.log($rootScope.currentUser);
+        if(localStorage.getItem('usr')) {
+            var info = localStorage.getItem('usr');
+            info = JSON.parse(info);
+            Auth.login(info);
+        }
+
         $scope.login = function(user) {
-            //console.log(user);
             $scope.user = {
                 email: user.email,
                 password: user.password
             };
-            console.log($scope.user);
+            localStorage.setItem("usr", JSON.stringify($scope.user));
             Auth.login($scope.user);
         };   
 }])
@@ -38,30 +42,70 @@ angular.module('starter.controllers', [])
 .controller("AddListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists',
     function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists) {
 
+        
+        $rootScope.$on('$cordovaNetwork:offline', function() {
+             console.log('No internet connection add');
+        });
+
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
 
         auth.$onAuth(function(authUser) {
             if (authUser) {
 
+                // define lists reference
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
                 var listInfo = $firebaseArray(listRef);
-
-                $scope.addList = function(params){
-                    Lists.addLists(params, $scope.addedUsersId);
-                    params.listname = '';
-                }
 
                 var userRef = new Firebase(FIREBASE_URL + 'users/');
                 var userInfo = $firebaseArray(userRef);
 
                 $scope.users = userInfo;
 
-                $scope.addedUsers = [];
-                $scope.addedUsersId = [];
 
+                $scope.$on("$ionicView.enter", function(event, data){
+                    // initialise variables
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    $scope.share = false;
+                    $scope.params = {
+                        share_email: '',
+                        listname: ''
+                    }
+                });
+
+                $scope.$on("$ionicView.afterLeave", function(event, data){
+                    // initialise variables
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    $scope.share = false;
+                    $scope.params = {
+                        share_email: '',
+                        listname: ''
+                    }
+                });
+
+
+                $scope.toggleChange = function(){
+                    if($scope.share == false){
+                        $scope.share = true;
+                    } else {
+                        $scope.share = false;
+                        $scope.addedUsers = [];
+                        $scope.addedUsersId = [];
+                        params.share_email = '';
+                    }
+                }
+
+                $scope.addList = function(params){
+                    Lists.addLists(params, $scope.addedUsersId);
+                    params.listname = '';
+                    $scope.addedUsers = [];
+                    $scope.addedUsersId = [];
+                    params.share_email = '';
+                }
+            
                 $scope.addPerson = function(user) {
-                    console.log("person added");
                     $scope.addedUsers.push(user.email);
                     $scope.addedUsersId.push(user.$id);
                 }; //add user to list
@@ -185,14 +229,17 @@ angular.module('starter.controllers', [])
                         ]
                     }).then(function(res) {
                         Lists.addTask($scope.whichList, res);
-                        Lists.getTasks($scope.whichList);
                     });
 
                 } //add task
 
                 if($scope.whichList){
-                    Lists.getTasks($scope.whichList);
 
+                    if(!$rootScope.tasks){
+                        $rootScope.tasks = [];
+                        Lists.getTasks($scope.whichList);
+                    } 
+                    
                     $scope.completeTask = function(id){
                         var ref = new Firebase(FIREBASE_URL + "/lists/" + $scope.whichList + "/tasks/" + id);
                         ref.update({
@@ -205,11 +252,35 @@ angular.module('starter.controllers', [])
         }); //onAuth
 }])
 
-.controller("ProfileCtrl", ['$scope', '$rootScope', 'Auth',
-    function($scope, $rootScope, Auth) {
+.controller("ProfileCtrl", ['$scope', '$rootScope', 'Auth', '$ionicHistory', '$cordovaNetwork',
+    function($scope, $rootScope, Auth, $ionicHistory, $cordovaNetwork) {
 
-                $scope.logout = function(){
-                    Auth.logout();
-                };
+        $scope.logout = function(){
+            Auth.logout();
+            localStorage.removeItem('todousr');
+            $ionicHistory.clearCache();
+        };
 
+
+        document.addEventListener("deviceready", function () {
+
+            var type = $cordovaNetwork.getNetwork()
+
+            var isOnline = $cordovaNetwork.isOnline()
+
+            var isOffline = $cordovaNetwork.isOffline()
+
+
+            // listen for Online event
+            $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
+              var onlineState = networkState;
+            })
+
+            // listen for Offline event
+            $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
+              var offlineState = networkState;
+            })
+
+        }, false);
+        
 }]);

@@ -18,14 +18,31 @@ angular.module('starter.services', [])
         
         var returnObj = {
             login: function(user) {
-                //console.log(user);
                 auth.$authWithPassword({
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
                     $state.go('tabs.add');
+                }, {
+                    remember: 'default'
                 }).catch(function(error) {
-                    $rootScope.message = error.message;
+                    switch (error.code) {
+                      case "INVALID_EMAIL":
+                        $rootScope.message = "The specified user account email is invalid.";
+                        console.log("The specified user account email is invalid.");
+                        break;
+                      case "INVALID_PASSWORD":
+                        $rootScope.message = "The specified user account password is incorrect.";
+                        console.log("The specified user account password is incorrect.");
+                        break;
+                      case "INVALID_USER":
+                        $rootScope.message = "The specified user account does not exist.";
+                        console.log("The specified user account does not exist.");
+                        break;
+                      default:
+                        $rootScope.message = "Error logging user in:" + error.message;
+                        console.log("Error logging user in:", error);
+                    }
                 });
             }, //login
             requireAuth: function() {
@@ -49,7 +66,20 @@ angular.module('starter.services', [])
                         }); //user info
                     $state.go('login');
                 }).catch(function(error) {
-                    $rootScope.message = error.message;
+                    switch (error.code) {
+                      case "EMAIL_TAKEN":
+                        $rootScope.message = "The new user account cannot be created because the email is already in use.";
+                        console.log("The new user account cannot be created because the email is already in use.");
+                        break;
+                      case "INVALID_EMAIL":
+                        $rootScope.message = "The specified email is not a valid email.";
+                        console.log("The specified email is not a valid email.");
+                        break;
+                      default:
+                        $rootScope.message = "Error creating user:" + error.message;
+                        console.log("Error creating user:", error);
+                    }
+                    
                 }); // createUser
             } //register
         }; // object
@@ -71,17 +101,10 @@ angular.module('starter.services', [])
                 });
             },
             getTasks: function(listid){
-                var ref = new Firebase(FIREBASE_URL + '/lists/' + listid + "/tasks");
+                var taskRef = new Firebase(FIREBASE_URL + '/lists/' + listid + "/tasks");
 
-                $rootScope.tasks = [];
-                ref.once("value", function(snap){
-                    var data = snap.val();
-                    angular.forEach(data, function(value, key) {
-                        var infoTask = ref.child(key);
-                        var obj = $firebaseObject(infoTask);
-                        $rootScope.tasks.push(obj);
-                        //console.log(obj);
-                    });
+                taskRef.on("child_added", function(snap){
+                    $rootScope.tasks.push($firebaseObject(taskRef.child(snap.key())));
                 });
             },
             addLists: function(params, addedUsersId){
@@ -122,7 +145,7 @@ angular.module('starter.services', [])
                 }
             },
             addTask: function(listid, name){
-                console.log(listid + " " + name);
+                //console.log(listid + " " + name);
                 var ref = new Firebase(FIREBASE_URL);
                 var taskId = ref.child('/lists/'+ listid +'/tasks/').push();  //create a new list id
                 taskId.set({
@@ -137,6 +160,49 @@ angular.module('starter.services', [])
         return listObj;
 
 }]) //factory
+
+.factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork){
+ 
+  return {
+    isOnline: function(){
+      if(ionic.Platform.isWebView()){
+        return $cordovaNetwork.isOnline();    
+      } else {
+        return navigator.onLine;
+      }
+    },
+    isOffline: function(){
+      if(ionic.Platform.isWebView()){
+        return !$cordovaNetwork.isOnline();    
+      } else {
+        return !navigator.onLine;
+      }
+    },
+    startWatching: function(){
+        if(ionic.Platform.isWebView()){
+ 
+          $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
+            console.log("went online");
+          });
+ 
+          $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
+            console.log("went offline");
+          });
+ 
+        }
+        else {
+ 
+          window.addEventListener("online", function(e) {
+            console.log("went online");
+          }, false);    
+ 
+          window.addEventListener("offline", function(e) {
+            console.log("went offline");
+          }, false);  
+        }       
+    }
+  }
+})
 
 .factory("User", ["$firebaseObject", "FIREBASE_URL",
   function($firebaseObject, FIREBASE_URL) {

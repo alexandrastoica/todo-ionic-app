@@ -1,4 +1,4 @@
-<ion-view view-title="Shared Lists" name="shared-view">
+<ion-view view-title="Shared Lists" can-swipe-back name="shared-view">
     <div class="bar bar-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
       <h2 class="title">{{ list.name }}</h2>
     </div>
