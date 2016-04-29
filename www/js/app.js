@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase', 'ngStorage'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase', 'ngCordova'])
 
-.run(function($ionicPlatform, $rootScope, $state, $ionicPopup) {
+.run(function($ionicPlatform, $rootScope, $state, $ionicPopup, $ionicLoading) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -29,14 +29,20 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
         });
 
+        $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
+            $ionicPopup.confirm({
+                title: "Internet Disconnected",
+                content: "The internet is disconnected on your device."
+            })
+            .then(function(result) {
+                if(!result) {
+                    ionic.Platform.exitApp();
+                }
+            });
+        });
+
     })
 })
-
-.config(['$localStorageProvider',
-    function ($localStorageProvider) {
-        $localStorageProvider.setKeyPrefix('todo');
-    }
-])
 
 .constant('FIREBASE_URL', 'https://fiery-inferno-5206.firebaseIO.com/')
 

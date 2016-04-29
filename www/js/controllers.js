@@ -1,8 +1,8 @@
 angular.module('starter.controllers', [])
 
 
-.controller("LoginCtrl", ['$scope', '$rootScope', 'Auth', '$localStorage',
-    function($scope, $rootScope, Auth, $localStorage) {
+.controller("LoginCtrl", ['$scope', '$rootScope', 'Auth', '$ionicLoading',
+    function($scope, $rootScope, Auth, $ionicLoading) {
 
         $rootScope.message = '';
 
@@ -19,7 +19,16 @@ angular.module('starter.controllers', [])
             };
             localStorage.setItem("usr", JSON.stringify($scope.user));
             Auth.login($scope.user);
-        };   
+        };
+
+        $scope.show = function() {
+            $ionicLoading.show({
+              template: 'Loading...'
+            });
+        };
+        $scope.hide = function(){
+            $ionicLoading.hide();
+        };
 }])
 
 .controller("RegisterCtrl", ['$scope', '$rootScope', 'Auth',
@@ -121,8 +130,8 @@ angular.module('starter.controllers', [])
 }]) //controller
 
 
-.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$timeout',
-    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $timeout) {
+.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$ionicLoading',
+    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $ionicLoading) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
@@ -138,7 +147,7 @@ angular.module('starter.controllers', [])
                 if(!$rootScope.lists){
                     $rootScope.lists = [];
                     Lists.getLists();
-                } 
+                }
 
                 $scope.whichList = $state.params.lId;
 
@@ -228,7 +237,9 @@ angular.module('starter.controllers', [])
                             }
                         ]
                     }).then(function(res) {
-                        Lists.addTask($scope.whichList, res);
+                        if(res){
+                            Lists.addTask($scope.whichList, res);
+                        }
                     });
 
                 } //add task

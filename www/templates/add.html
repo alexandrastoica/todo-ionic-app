@@ -1,5 +1,6 @@
 <ion-view view-title="Add List" name="add-view">
     <ion-content class="padding has-header">
+        <ion-spinner icon="spiral" ng-show="loading()"></ion-spinner>
         <p>Hello, {{ currentUser.name }}!</p>
         <form name="AddList" novalidate ng-submit="addList(params)">
             <ion-list>

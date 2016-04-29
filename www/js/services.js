@@ -87,8 +87,8 @@ angular.module('starter.services', [])
         return returnObj;
 }]) //factory
 
-.factory('Lists', ['$rootScope', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$state', '$location',
-    function($rootScope, $firebaseArray, $firebaseObject, FIREBASE_URL, $state, $location) {
+.factory('Lists', ['$rootScope', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$state', '$ionicLoading',
+    function($rootScope, $firebaseArray, $firebaseObject, FIREBASE_URL, $state, $ionicLoading) {
 
         var listObj = {
             getLists: function() {
