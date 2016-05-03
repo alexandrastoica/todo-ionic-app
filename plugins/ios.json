@@ -17,7 +17,15 @@
                             "count": 1
                         },
                         {
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"ios-package\" value=\"CDVInAppBrowser\" /></feature>",
+                            "count": 1
+                        },
+                        {
                             "xml": "<feature name=\"NetworkStatus\"><param name=\"ios-package\" value=\"CDVConnection\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"SpinnerDialog\"><param name=\"ios-package\" value=\"CDVSpinnerDialog\" /></feature>",
                             "count": 1
                         },
                         {
@@ -39,20 +47,18 @@
                         {
                             "xml": "<feature name=\"Keyboard\"><param name=\"ios-package\" onload=\"true\" value=\"IonicKeyboard\" /></feature>",
                             "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"ios-package\" value=\"CDVInAppBrowser\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"SpinnerDialog\"><param name=\"ios-package\" value=\"CDVSpinnerDialog\" /></feature>",
-                            "count": 1
                         }
                     ]
                 }
             },
             "framework": {
                 "parents": {
+                    "CoreGraphics.framework": [
+                        {
+                            "xml": false,
+                            "count": 2
+                        }
+                    ],
                     "SystemConfiguration.framework": [
                         {
                             "xml": true,
@@ -63,12 +69,6 @@
                         {
                             "xml": false,
                             "count": 1
-                        }
-                    ],
-                    "CoreGraphics.framework": [
-                        {
-                            "xml": false,
-                            "count": 2
                         }
                     ]
                 }
@@ -82,7 +82,13 @@
         "cordova-plugin-device": {
             "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
         },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
+        },
         "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
+        },
+        "cordova-plugin-spinner-dialog": {
             "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
         },
         "cordova-plugin-splashscreen": {
@@ -95,12 +101,6 @@
             "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
         },
         "ionic-plugin-keyboard": {
-            "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
-        },
-        "cordova-plugin-inappbrowser": {
-            "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
-        },
-        "cordova-plugin-spinner-dialog": {
             "PACKAGE_NAME": "com.ionicframework.ionic-todo-app"
         }
     },
