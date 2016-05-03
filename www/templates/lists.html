@@ -3,10 +3,6 @@
         <button class="button button-icon ion-minus-circled" 
         ng-click="data.showDelete = !data.showDelete; data.showReorder = false;"></button>
     </ion-nav-buttons>
-    <ion-nav-buttons side="secondary">
-        <button class="button button-icon ion-navicon" 
-        ng-click="data.showReorder = !data.showReorder; data.showDelete = false;"></button>
-    </ion-nav-buttons>
         <div class="bar bar-subheader bar-light item-input-inset">
             <label class="item-input-wrapper">
                 <i class="icon ion-search placeholder-icon"></i>
@@ -14,9 +10,8 @@
             </label>
         </div>
     <ion-content class="padding has-header has-subheader">
-        <ion-list show-reorder="data.showReorder" show-delete="data.showDelete">   
-            <ion-item class="item item-icon-right item-text-wrapper" ng-repeat="(key, list) in lists | filter: {name: searchList} | filter: {shared: 0} as items">   
-                <ion-reorder-button class="icon ion-navicon" on-reorder="moveList(list, $fromIndex, $toIndex)"></ion-reorder-button>
+        <ion-list show-delete="data.showDelete">   
+            <ion-item class="item item-icon-right item-text-wrapper" ng-repeat="(key, list) in lists | orderBy: '-date' | filter: {name: searchList} | filter: {shared: 0} as items">   
                 <ion-delete-button class="ion-minus-circled" ng-click="deleteList(key, list.listId); data.showDelete = false;"></ion-delete-button>
                     {{ list.name }}
                     <a class="button button-icon icon ion-ios-arrow-right" ui-sref="tabs.detail({lId: list.listId})"></a>

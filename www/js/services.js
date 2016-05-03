@@ -26,22 +26,19 @@ angular.module('starter.services', [])
                 }, {
                     remember: 'default'
                 }).catch(function(error) {
+                    //tell the user what the error is
                     switch (error.code) {
                       case "INVALID_EMAIL":
                         $rootScope.message = "The specified user account email is invalid.";
-                        console.log("The specified user account email is invalid.");
                         break;
                       case "INVALID_PASSWORD":
                         $rootScope.message = "The specified user account password is incorrect.";
-                        console.log("The specified user account password is incorrect.");
                         break;
                       case "INVALID_USER":
                         $rootScope.message = "The specified user account does not exist.";
-                        console.log("The specified user account does not exist.");
                         break;
                       default:
                         $rootScope.message = "Error logging user in:" + error.message;
-                        console.log("Error logging user in:", error);
                     }
                 });
             }, //login
@@ -66,18 +63,16 @@ angular.module('starter.services', [])
                         }); //user info
                     $state.go('login');
                 }).catch(function(error) {
+                    //tell the user what the error is
                     switch (error.code) {
                       case "EMAIL_TAKEN":
                         $rootScope.message = "The new user account cannot be created because the email is already in use.";
-                        console.log("The new user account cannot be created because the email is already in use.");
                         break;
                       case "INVALID_EMAIL":
                         $rootScope.message = "The specified email is not a valid email.";
-                        console.log("The specified email is not a valid email.");
                         break;
                       default:
                         $rootScope.message = "Error creating user:" + error.message;
-                        console.log("Error creating user:", error);
                     }
                     
                 }); // createUser

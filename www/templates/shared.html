@@ -1,8 +1,4 @@
 <ion-view view-title="Shared Lists" can-swipe-back cache-view="true" name="shared-view">
-    <ion-nav-buttons side="secondary">
-        <button class="button button-icon ion-navicon" 
-        ng-click="data.showReorder = !data.showReorder"></button>
-    </ion-nav-buttons>
         <div class="bar bar-subheader bar-light item-input-inset">
             <label class="item-input-wrapper">
                 <i class="icon ion-search placeholder-icon"></i>
@@ -10,10 +6,9 @@
             </label>
         </div>
     <ion-content class="padding has-header has-subheader">
-        <ion-list show-reorder="data.showReorder">    
+        <ion-list>    
             <ion-item class="item item-icon-right item-text-wrapper" 
             ng-repeat="(key, list) in lists | filter: {name: searchList} | filter: {shared: 1} as sharedItems">  
-                <ion-reorder-button class="icon ion-navicon" on-reorder="moveList(list, $fromIndex, $toIndex)"></ion-reorder-button>
                 {{ list.name }}
                 <a class="button button-icon icon ion-ios-arrow-right" ui-sref="tabs.shared-detail({lId: list.listId})"></a>
             </ion-item>
