@@ -6,6 +6,7 @@ angular.module('starter.controllers', [])
 
         $rootScope.message = '';
 
+        //log in user automacally if logged in before
         if(localStorage.getItem('usr')) {
             var info = localStorage.getItem('usr');
             info = JSON.parse(info);
@@ -17,17 +18,9 @@ angular.module('starter.controllers', [])
                 email: user.email,
                 password: user.password
             };
+            //store user info locally to keep the user logged in
             localStorage.setItem("usr", JSON.stringify($scope.user));
-            Auth.login($scope.user);
-        };
-
-        $scope.show = function() {
-            $ionicLoading.show({
-              template: 'Loading...'
-            });
-        };
-        $scope.hide = function(){
-            $ionicLoading.hide();
+            Auth.login($scope.user); //call login service
         };
 }])
 
@@ -36,25 +29,20 @@ angular.module('starter.controllers', [])
 
         $rootScope.message = '';
 
+        //register the user
         $scope.register = function(user) {
             $scope.user = {
                 email: user.email,
                 name: user.name,
                 password: user.password
             };
-            console.log($scope.user);
-            Auth.register($scope.user);
+            Auth.register($scope.user); //call auth service
         };
 
 }]) //controller
 
 .controller("AddListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists',
     function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists) {
-
-        
-        $rootScope.$on('$cordovaNetwork:offline', function() {
-             console.log('No internet connection add');
-        });
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
@@ -70,8 +58,8 @@ angular.module('starter.controllers', [])
                 var userInfo = $firebaseArray(userRef);
 
                 $scope.users = userInfo;
-
-
+                
+                //use application lifecycle to reset the variables on enter and after leave
                 $scope.$on("$ionicView.enter", function(event, data){
                     // initialise variables
                     $scope.addedUsers = [];
@@ -94,7 +82,7 @@ angular.module('starter.controllers', [])
                     }
                 });
 
-
+                //reset variables if toggle false
                 $scope.toggleChange = function(){
                     if($scope.share == false){
                         $scope.share = true;
@@ -102,10 +90,11 @@ angular.module('starter.controllers', [])
                         $scope.share = false;
                         $scope.addedUsers = [];
                         $scope.addedUsersId = [];
-                        params.share_email = '';
+                        $scope.params.share_email = '';
                     }
                 }
 
+                //add list by calling the list service and reset variables
                 $scope.addList = function(params){
                     Lists.addLists(params, $scope.addedUsersId);
                     params.listname = '';
@@ -113,7 +102,9 @@ angular.module('starter.controllers', [])
                     $scope.addedUsersId = [];
                     params.share_email = '';
                 }
-            
+
+                //add or remove user to an array to display to the current user 
+                //and also to add to the list object on addList()
                 $scope.addPerson = function(user) {
                     $scope.addedUsers.push(user.email);
                     $scope.addedUsersId.push(user.$id);
@@ -128,17 +119,18 @@ angular.module('starter.controllers', [])
         }); // onAuth
 
 }]) //controller
-
-
-.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$ionicLoading',
-    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $ionicLoading) {
+.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$ionicLoading', '$cordovaDialogs',
+    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $ionicLoading, $cordovaDialogs) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
 
         $scope.data = function(){
            showDelete = false;
-           showReorder = false;
+        }
+
+        $scope.taskparams = {
+            newTask: ''
         }
 
         auth.$onAuth(function(authUser) {
@@ -149,49 +141,59 @@ angular.module('starter.controllers', [])
                     Lists.getLists();
                 }
 
+                //get the subpage of list details, if existing
                 $scope.whichList = $state.params.lId;
 
-                
-                $scope.moveList = function(list, fromIndex, toIndex) {
-                    //Move the item in the array
-                    $rootScope.lists.splice(fromIndex, 1);
-                    $rootScope.lists.splice(toIndex, 0, list);
-                };
-
                 $scope.deleteList = function(key, id) {
-                    //delete from the lists object
-                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
-                    var record = $firebaseObject(refDel);
-                    record.$remove(id);
+                    //ensure the user wants to delete the item
+                    $cordovaDialogs.confirm('Are you sure you want to delete this item?', 'Delete', ['Cancel','Confirm']).then(function(buttonIndex) {
+                        if(buttonIndex == 1){ //confirmed
+                            //delete from the lists object
+                            var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
+                            var record = $firebaseObject(refDel);
+                            record.$remove(id);
 
-                    //delete from the users object
-                    var refDel = new Firebase(FIREBASE_URL + "/users/" + $rootScope.currentUser.$id + "/lists/" + id);
-                    var record = $firebaseObject(refDel);
-                    record.$remove(id);
+                            //delete from the users object
+                            var refDel = new Firebase(FIREBASE_URL + "/users/" + $rootScope.currentUser.$id + "/lists/" + id);
+                            var record = $firebaseObject(refDel);
+                            record.$remove(id);
 
-                    $ionicListDelegate.showDelete(false);
+                            $ionicListDelegate.showDelete(false);
+                        }
+                    });
                 }; //remove the list
 
 
                 $scope.deleteSharedList = function(key, id) {
-
-                    //delete from users object
-                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + id + "/members");
-                    refDel.once("value", function(snap){
-                        snap.forEach(function(data) {
-                            var userRef = new Firebase(FIREBASE_URL + "/users/" + data.key() + "/lists/" + id);
-                            var record = $firebaseObject(userRef);
+                    $cordovaDialogs.confirm('Are you sure you want to delete this item?', 'Delete', ['Cancel','Confirm']).then(function(buttonIndex) {
+                        if(buttonIndex == 1){ //confirmed
+                            //delete from users object
+                            var refDel = new Firebase(FIREBASE_URL + "/lists/" + id + "/members");
+                            refDel.once("value", function(snap){
+                                snap.forEach(function(data) {
+                                    var userRef = new Firebase(FIREBASE_URL + "/users/" + data.key() + "/lists/" + id);
+                                    var record = $firebaseObject(userRef);
+                                    record.$remove(id);
+                                });
+                            });
+                            //delete from the lists object
+                            var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
+                            var record = $firebaseObject(refDel);
                             record.$remove(id);
-                        });
+                            $state.go("tabs.shared");
+                        }
                     });
-                    //delete from the lists object
-                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
-                    var record = $firebaseObject(refDel);
-                    record.$remove(id);
-
-                    $state.go("tabs.shared");
-
                 }; //remove the list
+
+                if($scope.whichList){
+                    //fetch task list when needed
+                    var refDel = new Firebase(FIREBASE_URL + "/lists/" + $scope.whichList + "/tasks");
+                    var record = $firebaseObject(refDel);
+                    $rootScope.tasks = $firebaseArray(refDel);
+                }
+
+                //do not let users delete a shared list if they are not admins
+                $scope.canDelete = false;
 
                 var listRef = new Firebase(FIREBASE_URL + "lists/" + $scope.whichList);
                 var listInfo = $firebaseObject(listRef);
@@ -199,12 +201,18 @@ angular.module('starter.controllers', [])
 
                 listInfo.$loaded().then(function(){
                     var authorId = listInfo.by;
+                    //if admin, let user delete list
+                    if(authorId == $rootScope.currentUser.$id){
+                        $scope.canDelete = true;
+                    }
+                    //got to that user and fetch their details
                     var userRef = new Firebase(FIREBASE_URL + 'users/' + authorId);
                     var userInfo = $firebaseObject(userRef);
                     userInfo.$loaded().then(function(){
                         $scope.author = userInfo.name + " | " + userInfo.email;
                     });
 
+                    //fetch list of members
                     angular.forEach(listInfo.members, function(user, key){
                         var userRef = new Firebase(FIREBASE_URL + 'users/' + key);
                         var userInfo = $firebaseObject(userRef);
@@ -214,50 +222,26 @@ angular.module('starter.controllers', [])
                     });
                 });
 
-                $scope.addTask = function(){
-                    $scope.popup = {}
-                    var myPopup = $ionicPopup.show({
-                        template: '<ion-list> <label class="item item-input"> <input type="text" name="name" autofocus ng-model="popup.taskname" placeholder="Task"> </label> </ion-list>',
-                        title: 'Enter a task',
-                        scope: $scope,
-                        buttons: [
-                            { 
-                                text: 'Cancel' 
-                            }, {
-                                text: '<b>Save</b>',
-                                type: 'button-positive',
-                                onTap: function(e) {
-                                    if (!$scope.popup.taskname) {
-                                        //don't allow the user to save unless he enters task
-                                        e.preventDefault();
-                                    } else {
-                                        return $scope.popup.taskname;
-                                    }
-                                }
-                            }
-                        ]
-                    }).then(function(res) {
-                        if(res){
-                            Lists.addTask($scope.whichList, res);
-                        }
-                    });
-
+                $scope.addTask = function(params){
+                    Lists.addTask($scope.whichList, params.newTask);
+                    params.newTask = '';
                 } //add task
 
-                if($scope.whichList){
-
-                    if(!$rootScope.tasks){
-                        $rootScope.tasks = [];
-                        Lists.getTasks($scope.whichList);
-                    } 
+                $scope.removeTask = function(id){
+                    //get record reference and remove
+                    var ref = new Firebase(FIREBASE_URL + "/lists/" + $scope.whichList + "/tasks/" + id);
+                    var record = $firebaseObject(ref);
+                    record.$remove(id);
+                }
                     
-                    $scope.completeTask = function(id){
-                        var ref = new Firebase(FIREBASE_URL + "/lists/" + $scope.whichList + "/tasks/" + id);
-                        ref.update({
-                            done: 1
-                        });
-                    }
-                } //if list defined
+                $scope.completeTask = function(id){
+                    //get record reference and update
+                    var ref = new Firebase(FIREBASE_URL + "/lists/" + $scope.whichList + "/tasks/" + id);
+                    ref.update({
+                        done: 1,
+                        date: Firebase.ServerValue.TIMESTAMP
+                    });
+                }
             
             }//if auth
         }); //onAuth
@@ -267,31 +251,9 @@ angular.module('starter.controllers', [])
     function($scope, $rootScope, Auth, $ionicHistory, $cordovaNetwork) {
 
         $scope.logout = function(){
-            Auth.logout();
-            localStorage.removeItem('todousr');
-            $ionicHistory.clearCache();
+            Auth.logout(); //log the user out by calling auth service
+            localStorage.removeItem('todousr'); //eliminate login details from localstorage to prevent autologin
+            $ionicHistory.clearCache(); //clear any cached views
         };
-
-
-        document.addEventListener("deviceready", function () {
-
-            var type = $cordovaNetwork.getNetwork()
-
-            var isOnline = $cordovaNetwork.isOnline()
-
-            var isOffline = $cordovaNetwork.isOffline()
-
-
-            // listen for Online event
-            $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
-              var onlineState = networkState;
-            })
-
-            // listen for Offline event
-            $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
-              var offlineState = networkState;
-            })
-
-        }, false);
         
 }]);

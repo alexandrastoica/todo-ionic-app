@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase', 'ngCordova'])
 
-.run(function($ionicPlatform, $rootScope, $state, $ionicPopup, $ionicLoading) {
+.run(function($ionicPlatform, $rootScope, $state, $cordovaDialogs, $cordovaVibration) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -29,22 +29,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
         });
 
+        //tell the user if the app lost internet connection
         $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
-            $ionicPopup.confirm({
-                title: "Internet Disconnected",
-                content: "The internet is disconnected on your device."
-            })
-            .then(function(result) {
-                if(!result) {
-                    ionic.Platform.exitApp();
-                }
+            $cordovaDialogs.alert('Your app needs internet connection to work poperly.', 'No Internet Connection', 'Ok').then(function() {
+              // callback success
             });
+            //vibrate to tell the user something's not right
+            $cordovaVibration.vibrate(100);
         });
-
     })
 })
 
-.constant('FIREBASE_URL', 'https://fiery-inferno-5206.firebaseIO.com/')
+.constant('FIREBASE_URL', 'https://fiery-inferno-5206.firebaseIO.com/') //define firebase url
+
+.config(function($ionicConfigProvider) {
+    $ionicConfigProvider.views.maxCache(10); //control the number of cheched views for storage
+    $ionicConfigProvider.scrolling.jsScrolling(false); 
+})
 
 .config(function($stateProvider, $urlRouterProvider) {
     $stateProvider
@@ -106,6 +107,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.detail', {
             url: "/lists/:lId",
+            //cache: false,
             views: {
                 "lists-tab": {
                     templateUrl: "templates/lists-details.html",
@@ -119,6 +121,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } // resolve - this will prevent unlogged user from accessing the page
         }).state('tabs.shared-detail', {
             url: "/shared/:lId",
+            //cache: false,
             views: {
                 "shared-tab": {
                     templateUrl: "templates/shared-details.html",

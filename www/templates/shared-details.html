@@ -1,27 +1,50 @@
-<ion-view view-title="Shared Lists" can-swipe-back name="shared-view">
+<ion-view view-title="Shared Lists" name="shared-view">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-medium" ng-show="canDelete" ng-click="deleteSharedList(key, whichList)">Delete</button>
+    </ion-nav-buttons>
+
     <div class="bar bar-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
       <h2 class="title">{{ list.name }}</h2>
     </div>
+
     <ion-content class="padding has-header has-subheader" ng-repeat="(key, list) in lists | filter: {listId: whichList}">
-        <h5>Owner: {{ author }}</h5>
-        <p ng-show="shares.length">Shared with:</p>
-        <p ng-repeat="shared in shares" ng-show="shares.length">{{ shared }}</p>
-        <ion-list>
-            <ion-item class="item item-divider">Tasks</ion-item>
-            <ion-checkbox ng-repeat="(key, task) in tasks | filter: {done: 0} as notDone" ng-click="completeTask(task.$id)">
-                {{ task.name }}
-            </ion-checkbox>
-            <ion-item ng-show="notDone.length===0" class="assertive">No tasks</ion-item>
-        </ion-list>
+        <p>Created: {{ list.date | date: shortdate}}</p>
+        <p>Created by: {{ author }}
 
         <ion-list>
-            <ion-item class="item item-divider">Completed Tasks</ion-item>
-            <ion-item ng-repeat="(key, task) in tasks | filter: {done: 1} as done">
+            <form name="AddTask" novalidate ng-submit="addTask(taskparams)">
+                <ion-item class="item-input-inset">
+                    <label class="item-input-wrapper">
+                      <input type="text" ng-required="true" ng-model="taskparams.newTask" placeholder="New Task">
+                    </label>
+                    <button class="button button-icon ion-plus-round positive" ng-disabled="AddTask.$invalid"></button>
+                </ion-item>
+            </form>
+
+            <ion-item class="item item-divider">Tasks</ion-item>
+            <ion-checkbox ng-repeat="(key, task) in tasks | orderBy: '-date' | filter: {done: 0} as notDone" ng-click="completeTask(task.$id)">
                 {{ task.name }}
+                <span class="item-note">
+                    {{ task.date | date: shortDate }}
+                </span>
+            </ion-checkbox>
+            <ion-item ng-show="notDone.length===0" class="assertive">No tasks</ion-item>
+
+            <ion-item class="item item-divider">Shared With</ion-item>
+            <ion-item ng-repeat="(key, member) in members | filter: '!' + currentUser.email">
+                {{ member }}
+            </ion-item>
+
+            <ion-item class="item item-divider"> Completed Tasks </ion-item>
+            <ion-item ng-repeat="(key, task) in tasks | orderBy: '-date' | filter: {done: 1} as done">
+                {{ task.name }} 
+                <span class="item-note">
+                    {{ task.date | date: shortDate }}
+                </span>
             </ion-item>
             <ion-item ng-show="done.length===0" class="assertive">Nothing completed</ion-item>
         </ion-list>
-        <button class="button button-block button-positive" ng-click="addTask()">Add Task</button>
-        <button ng-if="list.by == currentUser.$id" class="button button-block button-assertive" ng-click="deleteSharedList(key, list.listId)">Delete List</button>
+
+
     </ion-content>
 </ion-view>

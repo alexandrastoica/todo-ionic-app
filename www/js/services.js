@@ -1,7 +1,7 @@
 angular.module('starter.services', [])
 
-.factory('Auth', ['$rootScope', '$firebaseAuth', '$firebaseObject', 'FIREBASE_URL', '$state',
-    function($rootScope, $firebaseAuth, $firebaseObject, FIREBASE_URL, $state) {
+.factory('Auth', ['$rootScope', '$firebaseAuth', '$firebaseObject', 'FIREBASE_URL', '$state', '$cordovaVibration',
+    function($rootScope, $firebaseAuth, $firebaseObject, FIREBASE_URL, $state, $cordovaVibration) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
@@ -26,6 +26,8 @@ angular.module('starter.services', [])
                 }, {
                     remember: 'default'
                 }).catch(function(error) {
+                    //vibrate to tell the user something's not right
+                    $cordovaVibration.vibrate(100);
                     //tell the user what the error is
                     switch (error.code) {
                       case "INVALID_EMAIL":
@@ -54,6 +56,7 @@ angular.module('starter.services', [])
                     email: user.email,
                     password: user.password
                 }).then(function(regUser) {
+                    //create a child for that user and store their details 
                     var regRef = new Firebase(FIREBASE_URL + 'users')
                         .child(regUser.uid).set({
                             date: Firebase.ServerValue.TIMESTAMP,
@@ -61,8 +64,10 @@ angular.module('starter.services', [])
                             name: user.name,
                             email: user.email
                         }); //user info
-                    $state.go('login');
+                    $state.go('login'); //redirect to login
                 }).catch(function(error) {
+                    //vibrate to tell the user something's not right
+                    $cordovaVibration.vibrate(100);
                     //tell the user what the error is
                     switch (error.code) {
                       case "EMAIL_TAKEN":
@@ -87,25 +92,22 @@ angular.module('starter.services', [])
 
         var listObj = {
             getLists: function() {
-
+                //get firebase references
                 var listRef = new Firebase(FIREBASE_URL + 'lists/');
                 var userListRef = new Firebase(FIREBASE_URL + 'users/' + $rootScope.currentUser.$id + '/lists/');
 
+                //call this method to fetch lists whenever they are either added by the user or shared with them
                 userListRef.on("child_added", function(snap, prevSnap){
+                    //add to rootscope the specific list object
                     $rootScope.lists.push($firebaseObject(listRef.child(snap.key())));
                 });
             },
-            getTasks: function(listid){
-                var taskRef = new Firebase(FIREBASE_URL + '/lists/' + listid + "/tasks");
-
-                taskRef.on("child_added", function(snap){
-                    $rootScope.tasks.push($firebaseObject(taskRef.child(snap.key())));
-                });
-            },
             addLists: function(params, addedUsersId){
+                //get reference
                 var ref = new Firebase(FIREBASE_URL);
-                var listId = ref.child('/lists').push();  //create a new list id
-
+                //create a new list id
+                var listId = ref.child('/lists').push();  
+                //store list data
                 listId.set({
                     listId: listId.key(),
                     name: params.listname,
@@ -114,6 +116,7 @@ angular.module('starter.services', [])
                     shared: 0
                 }, function(err){
                     if(!err){
+                        //add keys to the users object for many-to-many relation
                         var name = listId.key();
                         ref.child('/users/' + $rootScope.currentUser.$id + "/lists/" + name).set(true);
                         ref.child('/lists/' + name + '/members/' + $rootScope.currentUser.$id).set(true);
@@ -134,15 +137,17 @@ angular.module('starter.services', [])
                         ref.child('/users/' + id + "/lists/" + name).set(true);
                     });
                     addedUsers = [];
-                    $state.go("tabs.shared");
+                    $state.go("tabs.shared"); //redirect to shared if list shared
                 } else {
-                    $state.go("tabs.lists");
+                    $state.go("tabs.lists"); //else redirect to lists
                 }
             },
             addTask: function(listid, name){
-                //console.log(listid + " " + name);
+                //get reference
                 var ref = new Firebase(FIREBASE_URL);
-                var taskId = ref.child('/lists/'+ listid +'/tasks/').push();  //create a new list id
+                //create a new list id
+                var taskId = ref.child('/lists/'+ listid +'/tasks/').push(); 
+                //store list details 
                 taskId.set({
                     taskId: taskId.key(),
                     name: name,
@@ -153,64 +158,4 @@ angular.module('starter.services', [])
             }
         }
         return listObj;
-
-}]) //factory
-
-.factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork){
- 
-  return {
-    isOnline: function(){
-      if(ionic.Platform.isWebView()){
-        return $cordovaNetwork.isOnline();    
-      } else {
-        return navigator.onLine;
-      }
-    },
-    isOffline: function(){
-      if(ionic.Platform.isWebView()){
-        return !$cordovaNetwork.isOnline();    
-      } else {
-        return !navigator.onLine;
-      }
-    },
-    startWatching: function(){
-        if(ionic.Platform.isWebView()){
- 
-          $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
-            console.log("went online");
-          });
- 
-          $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
-            console.log("went offline");
-          });
- 
-        }
-        else {
- 
-          window.addEventListener("online", function(e) {
-            console.log("went online");
-          }, false);    
- 
-          window.addEventListener("offline", function(e) {
-            console.log("went offline");
-          }, false);  
-        }       
-    }
-  }
-})
-
-.factory("User", ["$firebaseObject", "FIREBASE_URL",
-  function($firebaseObject, FIREBASE_URL) {
-
-    var userObj = {
-
-        getUser: function(){
-            var userRef = new Firebase(FIREBASE_URL + "users/" + $rootScope.currentUser.$id);
-        }
-        
-
-    } 
-
-    return userObj;
-  }
-]);
+}]);

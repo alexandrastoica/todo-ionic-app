@@ -1,19 +1,19 @@
 <ion-view view-title="Add List" name="add-view">
     <ion-content class="padding has-header">
-        <ion-spinner icon="spiral" ng-show="loading()"></ion-spinner>
         <p>Hello, {{ currentUser.name }}!</p>
         <form name="AddList" novalidate ng-submit="addList(params)">
             <ion-list>
                 <label class="item item-input">
                     <input type="text" name="listname" ng-model="params.listname" ng-required="true" placeholder="Create a new to-do list">
                 </label>
-                <ion-toggle ng-model="share" ng-change="toggleChange()" toggle-class="toggle-balanced">Share list</ion-toggle>
+                <ion-toggle ng-model="share" ng-checked="share" ng-change="toggleChange()" toggle-class="toggle-balanced">Share list</ion-toggle>
 
                 <label class="item item-input item-input-wrapper" ng-show="share">
                     <i class="icon ion-search placeholder-icon"></i>
                     <input type="search" name="share_email" ng-model="params.share_email" ng-required="share" placeholder="Enter an e-mail adresses">
                 </label>
-                <ion-item class="item item-icon-right" ng-show="share && params.share_email.length" ng-repeat="(key, user) in users | filter: {email: params.share_email}">
+                
+                <ion-item class="item item-icon-right" ng-show="share && params.share_email.length" ng-repeat="(key, user) in users | filter: {email: '!' + currentUser.email} | filter: {email: params.share_email}">
                     {{ user.name }} | {{ user.email }}
                     <i class="icon ion-person-add" ng-click="addPerson(user)"></i>
                 </ion-item>
