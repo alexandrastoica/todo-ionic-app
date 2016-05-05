@@ -6,6 +6,11 @@ angular.module('starter.controllers', [])
 
         $rootScope.message = '';
 
+        //prevent the message from being cached
+        $scope.$on("$ionicView.enter", function(event, data){
+            $rootScope.message = '';
+        });
+
         //log in user automacally if logged in before
         if(localStorage.getItem('usr')) {
             var info = localStorage.getItem('usr');
@@ -28,6 +33,11 @@ angular.module('starter.controllers', [])
     function($scope, $rootScope, Auth) {
 
         $rootScope.message = '';
+
+        //prevent the message from being cached
+        $scope.$on("$ionicView.enter", function(event, data){
+            $rootScope.message = '';
+        });
 
         //register the user
         $scope.register = function(user) {
@@ -119,8 +129,8 @@ angular.module('starter.controllers', [])
         }); // onAuth
 
 }]) //controller
-.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$ionicLoading', '$cordovaDialogs',
-    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $ionicLoading, $cordovaDialogs) {
+.controller("ListCtrl", ['$scope', '$rootScope', '$state','$firebaseAuth', '$firebaseArray', '$firebaseObject', 'FIREBASE_URL', '$ionicListDelegate', 'Auth', 'Lists', '$ionicPopup', '$cordovaVibration', '$cordovaDialogs',
+    function($scope, $rootScope, $state, $firebaseAuth, $firebaseArray, $firebaseObject, FIREBASE_URL, $ionicListDelegate, Auth, Lists, $ionicPopup, $cordovaVibration, $cordovaDialogs) {
 
         var ref = new Firebase(FIREBASE_URL);
         var auth = $firebaseAuth(ref);
@@ -146,8 +156,13 @@ angular.module('starter.controllers', [])
 
                 $scope.deleteList = function(key, id) {
                     //ensure the user wants to delete the item
-                    $cordovaDialogs.confirm('Are you sure you want to delete this item?', 'Delete', ['Cancel','Confirm']).then(function(buttonIndex) {
-                        if(buttonIndex == 1){ //confirmed
+                    var confirmPopup = $ionicPopup.confirm({
+                        title: 'Delete Item',
+                        template: 'Are you sure you want to delete this item?'
+                    });
+
+                   confirmPopup.then(function(res) {
+                     if(res) {
                             //delete from the lists object
                             var refDel = new Firebase(FIREBASE_URL + "/lists/" + id);
                             var record = $firebaseObject(refDel);
@@ -161,14 +176,20 @@ angular.module('starter.controllers', [])
                             $ionicListDelegate.showDelete(false);
                         }
                     });
+
                 }; //remove the list
 
 
                 $scope.deleteSharedList = function(key, id) {
-                    $cordovaDialogs.confirm('Are you sure you want to delete this item?', 'Delete', ['Cancel','Confirm']).then(function(buttonIndex) {
-                        if(buttonIndex == 1){ //confirmed
-                            //delete from users object
-                            var refDel = new Firebase(FIREBASE_URL + "/lists/" + id + "/members");
+                    //ensure the user wants to delete the item
+                    var confirmPopup = $ionicPopup.confirm({
+                        title: 'Delete Item',
+                        template: 'Are you sure you want to delete this item?'
+                    });
+
+                    confirmPopup.then(function(res) {
+                        if(res) {
+                        var refDel = new Firebase(FIREBASE_URL + "/lists/" + id + "/members");
                             refDel.once("value", function(snap){
                                 snap.forEach(function(data) {
                                     var userRef = new Firebase(FIREBASE_URL + "/users/" + data.key() + "/lists/" + id);
@@ -181,8 +202,10 @@ angular.module('starter.controllers', [])
                             var record = $firebaseObject(refDel);
                             record.$remove(id);
                             $state.go("tabs.shared");
-                        }
-                    });
+                    }
+
+                   });
+
                 }; //remove the list
 
                 if($scope.whichList){
@@ -223,8 +246,12 @@ angular.module('starter.controllers', [])
                 });
 
                 $scope.addTask = function(params){
-                    Lists.addTask($scope.whichList, params.newTask);
-                    params.newTask = '';
+                    if(params.newTask===''){
+                        $cordovaVibration.vibrate(100);
+                    } else {
+                        Lists.addTask($scope.whichList, params.newTask);
+                        params.newTask = '';
+                    }
                 } //add task
 
                 $scope.removeTask = function(id){

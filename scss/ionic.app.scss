@@ -20,3 +20,12 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
+
+.user-background{
+	text-align: center;
+	form{
+		width: 90%;
+		margin: 0 auto;
+	}
+	padding-top: 40%;
+}

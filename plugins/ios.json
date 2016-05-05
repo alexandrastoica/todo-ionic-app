@@ -31,6 +31,9 @@
         "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
         },
+        "cordova-plugin-vibration": {
+            "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
+        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
         },
@@ -38,9 +41,6 @@
             "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
         },
         "org.pbernasconi.progressindicator": {
-            "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
-        },
-        "cordova-plugin-vibration": {
             "PACKAGE_NAME": "com.ionicframework.ionic.todo-app"
         }
     },

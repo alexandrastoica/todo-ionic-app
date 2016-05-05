@@ -1,7 +1,8 @@
 <ion-view view-title="Register" name="register-view" hide-nav-bar="true">
-    <ion-content class="padding has-subheader">
+    <ion-content class="padding user-background">
+        <h2>Register</h2>
         <form name="RegisterForm" novalidate ng-submit="register(user)">
-            {{ message }}
+            <p>{{ message }}</p>
             <ion-list class="register-form">
                 <label class="item item-input">
                     <input type="email" name="email" ng-model="user.email" ng-required="true" placeholder="Email">
